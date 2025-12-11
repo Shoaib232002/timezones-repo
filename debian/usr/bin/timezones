@@ -1,62 +1,33 @@
 #!/bin/bash
 
-RED="\033[31m"
-GREEN="\033[32m"
-CYAN="\033[36m"
-YELLOW="\033[33m"
-BOLD="\033[1m"
-RESET="\033[0m"
+trap "clear; exit 0" INT
 
-trap 'clear; exit 0' INT
-
-show_live_time() {
+show_live_time_dialog() {
     name="$1"
     tz="$2"
 
     while true; do
-        clear
-        echo -e "${CYAN}${BOLD}==============================="
-        echo -e "   LIVE CLOCK → $name"
-        echo -e "===============================${RESET}"
-        echo
-        echo -e "${YELLOW}Timezone:${RESET} ${GREEN}$tz${RESET}"
-        echo -e "${YELLOW}Current Time:${RESET}"
-        echo -e "${GREEN}$(TZ="$tz" date)${RESET}"
-        echo
-        echo -e "${CYAN}Press ESC to return...${RESET}"
+        time_now=$(TZ="$tz" date +"%a, %d %b %Y %H:%M:%S")
+
+        printf "Timezone: %s\n\nCurrent Time:\n%s\n\nPress ESC to return to Menu, or 'q' to Exit." \
+            "$tz" "$time_now" | dialog --title "LIVE CLOCK - $name" --infobox "$(cat)" 12 50
 
         read -rsn1 -t 1 key
         if [[ $key == $'\e' ]]; then
-            rest=""
-            while read -rsn1 -t 0.01 k; do rest+="$k"; done
-            [[ -z "$rest" ]] && break
+            return 0
+        elif [[ $key == "q" ]]; then
+            clear
+            exit 0
         fi
     done
 }
 
-map_fkey() {
-    read -rsn1 key1
-
-    if [[ $key1 == $'\e' ]]; then
-        seq="$key1"
-        while read -rsn1 -t 0.015 k; do seq+="$k"; done
-
-        case "$seq" in
-            $'\eOP'|$'\e[11~') echo 1 ;;  # F1
-            $'\eOQ'|$'\e[12~') echo 2 ;;  # F2
-            $'\eOR'|$'\e[13~') echo 3 ;;  # F3
-            $'\eOS'|$'\e[14~') echo 4 ;;  # F4
-            $'\e[15~')         echo 5 ;;  # F5
-            $'\e[17~')         echo 6 ;;  # F6
-            $'\e') clear; exit 0 ;;       # ESC
-        esac
-    fi
-}
-
 while true; do
-    dialog --clear \
+    exec 3>&1
+    choice=$(dialog --clear \
         --title "TIMEZONE VIEWER" \
-        --menu "Use 1-6 to choose timezone OR select option below:" \
+        --cancel-label "Exit" \
+        --menu "Select a timezone using 1-6 or arrow keys or cursor and 7 + enter for exit or use the Exit button:" \
         18 60 10 \
         1 "India (Asia/Kolkata)" \
         2 "UK (Europe/London)" \
@@ -65,40 +36,17 @@ while true; do
         5 "Melbourne (Australia/Melbourne)" \
         6 "Japan (Asia/Tokyo)" \
         EXIT "Exit Program" \
-        2>choice.txt
+        2>&1 1>&3)
+    exec 3>&-
 
-    status=$?
-
-    clear
-
-    if [[ $status -ne 0 ]]; then
-        exit 0
-    fi
-
-    choice=$(cat choice.txt)
-
-    if [[ "$choice" == "EXIT" ]]; then
-        clear
-        exit 0
-    fi
+    [[ -z "$choice" || "$choice" == "EXIT" ]] && clear && exit 0
 
     case "$choice" in
-        1) show_live_time "India (Asia/Kolkata)" "Asia/Kolkata" ;;
-        2) show_live_time "UK (Europe/London)" "Europe/London" ;;
-        3) show_live_time "Dubai (Asia/Dubai)" "Asia/Dubai" ;;
-        4) show_live_time "Hong Kong (Asia/Hong_Kong)" "Asia/Hong_Kong" ;;
-        5) show_live_time "Melbourne (Australia/Melbourne)" "Australia/Melbourne" ;;
-        6) show_live_time "Japan (Asia/Tokyo)" "Asia/Tokyo" ;;
+        1) show_live_time_dialog "India" "Asia/Kolkata" ;;
+        2) show_live_time_dialog "UK" "Europe/London" ;;
+        3) show_live_time_dialog "Dubai" "Asia/Dubai" ;;
+        4) show_live_time_dialog "Hong Kong" "Asia/Hong_Kong" ;;
+        5) show_live_time_dialog "Melbourne" "Australia/Melbourne" ;;
+        6) show_live_time_dialog "Japan" "Asia/Tokyo" ;;
     esac
-
-    f=$(map_fkey)
-    case "$f" in
-        1) show_live_time "India (Asia/Kolkata)" "Asia/Kolkata" ;;
-        2) show_live_time "UK (Europe/London)" "Europe/London" ;;
-        3) show_live_time "Dubai (Asia/Dubai)" "Asia/Dubai" ;;
-        4) show_live_time "Hong Kong (Asia/Hong_Kong)" "Asia/Hong_Kong" ;;
-        5) show_live_time "Melbourne (Australia/Melbourne)" "Australia/Melbourne" ;;
-        6) show_live_time "Japan (Asia/Tokyo)" "Asia/Tokyo" ;;
-    esac
-
 done
