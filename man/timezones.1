@@ -1,32 +1,38 @@
-.TH TIMEZONES Command Line Tool 
-
+.TH TIMEZONES 1
 .SH NAME
-       timezones - A custom command for displaying time zones. Also available with visual mode.
+timezones - A custom command for displaying time zones, with optional visual mode.
 
 .SH SYNOPSIS
-       timezones [OPTIONS]
+timezones [OPTIONS]
 
 .SH DESCRIPTION
-       The timezones command prints time date and timezones based on cities timzones. also available with visual mode which displays live time.
+The \fBtimezones\fR command prints the current date and time for various cities based on their respective time zones. A visual mode is also available, which displays live time.
 
 .SH OPTIONS
+.TP
+\fB-vi\fR
+Open in visual (live) mode.
+.TP
+\fB-in\fR
+Show India time (Asia/Kolkata).
+.TP
+\fB-uk\fR
+Show United Kingdom time (Europe/London).
+.TP
+\fB-hk\fR
+Show Hong Kong time (Asia/Hong_Kong).
+.TP
+\fB-d\fR
+Show Dubai time (Asia/Dubai).
+.TP
+\fB-jp\fR
+Show Japan time (Asia/Tokyo).
+.TP
+\fB-mel\fR
+Show Melbourne time (Australia/Melbourne).
 
-.SH -vi
-.R open in visual mode
-.SH -in
-.R Show India time (Asia/Kolkata)
-.SH -uk
-.R  Show UK time (Europe/London)
-.SH -hk
-.R  Show Hong Kong time
-.SH -d
-.R    Show Dubai time
-.SH -jp
-.R   Show Japan time
-.SH -mel
-.R  Show Melbourne time
 .SH AUTHOR
-       Written by Mohammed Shoaib.
+Written by Mohammed Shoaib.
 
 .SH SEE ALSO
-      date, timedatectl
+date, timedatectl
